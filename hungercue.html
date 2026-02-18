@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HungerCue - Fighting Food Insecurity</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --green: #2c7a4f;
+      --green-dark: #1e6f47;
+      --orange: #f97316;
+      --blue: #0ea5e9;
+      --light: #f8fafc;
+      --white: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --border: #e2e8f0;
+      --success-bg: #dcfce7;
+      --success-text: #166534;
+      --warn-bg: #fef3c7;
+      --warn-text: #854d0e;
+      --info-bg: #dbeafe;
+      --info-text: #1e40af;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--light);
+      color: var(--text);
+      line-height: 1.6;
+    }
+
+    /* HEADER */
+    header {
+      background: linear-gradient(135deg, var(--green), var(--green-dark));
+      color: white;
+      padding: 1.25rem 1.5rem 0;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+    }
+    .header-top { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.25rem; }
+    .logo-icon { font-size: 2rem; }
+    header h1 { font-size: 1.75rem; }
+    .tagline { font-size: 0.85rem; opacity: 0.9; margin-bottom: 1rem; }
+
+    /* NAV */
+    nav { display: flex; flex-wrap: wrap; gap: 0.25rem; padding-bottom: 0; }
+    nav button {
+      background: none;
+      border: none;
+      color: white;
+      padding: 0.6rem 1rem;
+      border-radius: 8px 8px 0 0;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+      opacity: 0.8;
+    }
+    nav button:hover { background: rgba(255,255,255,0.15); opacity: 1; }
+    nav button.active { background: var(--light); color: var(--green); opacity: 1; font-weight: 700; }
+
+    /* MAIN */
+    main { max-width: 960px; margin: 0 auto; padding: 1.5rem 1rem; }
+
+    /* PAGES */
+    .page { display: none; }
+    .page.active { display: block; }
+
+    /* CARDS */
+    .card {
+      background: var(--white);
+      border-radius: 12px;
+      padding: 1.25rem;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      border: 1px solid var(--border);
+      margin-bottom: 1.25rem;
+    }
+    .card h2 { color: var(--green); margin-bottom: 0.5rem; font-size: 1.4rem; }
+    .card h3 { margin-bottom: 0.75rem; font-size: 1.1rem; }
+    .card > p { color: var(--muted); }
+
+    /* STATS GRID */
+    .stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-bottom: 1.25rem; }
+    @media (min-width: 600px) { .stats { grid-template-columns: repeat(4, 1fr); } }
+    .stat {
+      background: var(--white);
+      border-radius: 12px;
+      padding: 1rem;
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--green);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+    }
+    .stat.orange { border-left-color: var(--orange); }
+    .stat.blue { border-left-color: var(--blue); }
+    .stat.purple { border-left-color: #a855f7; }
+    .stat-label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; }
+    .stat-value { font-size: 1.8rem; font-weight: 800; margin: 0.25rem 0; }
+    .stat-desc { font-size: 0.8rem; color: var(--muted); }
+
+    /* BUTTONS */
+    .btn {
+      padding: 0.6rem 1.25rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-green { background: var(--green); color: white; }
+    .btn-green:hover { background: var(--green-dark); }
+    .btn-orange { background: var(--orange); color: white; }
+    .btn-outline { background: white; color: var(--green); border: 2px solid var(--green); }
+    .btn-sm { padding: 0.35rem 0.75rem; font-size: 0.8rem; }
+
+    /* FORMS */
+    .form-row { margin-bottom: 1rem; }
+    .form-row label { display: block; font-weight: 600; font-size: 0.9rem; margin-bottom: 0.35rem; }
+    .form-row input, .form-row select, .form-row textarea {
+      width: 100%;
+      padding: 0.65rem 0.75rem;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      font-size: 1rem;
+      font-family: inherit;
+      transition: border-color 0.2s;
+      background: var(--white);
+    }
+    .form-row input:focus, .form-row select:focus, .form-row textarea:focus {
+      outline: none;
+      border-color: var(--green);
+    }
+    .form-row textarea { resize: vertical; min-height: 80px; }
+    .form-box { background: var(--light); border-radius: 10px; padding: 1.25rem; margin-bottom: 1.25rem; border: 1px solid var(--border); }
+    .form-box h4 { margin-bottom: 1rem; color: var(--green); }
+
+    /* TABLE */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+    th { background: var(--light); padding: 0.75rem; text-align: left; font-weight: 700; border-bottom: 2px solid var(--border); }
+    td { padding: 0.75rem; border-bottom: 1px solid var(--border); }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: var(--light); }
+
+    /* BADGES */
+    .badge { display: inline-block; padding: 0.2rem 0.65rem; border-radius: 99px; font-size: 0.78rem; font-weight: 600; }
+    .badge-green { background: var(--success-bg); color: var(--success-text); }
+    .badge-orange { background: #fff7ed; color: #c2410c; }
+    .badge-blue { background: var(--info-bg); color: var(--info-text); }
+
+    /* NOTICE */
+    .notice {
+      padding: 1rem 1.25rem;
+      border-radius: 8px;
+      border-left: 4px solid;
+      margin-bottom: 1rem;
+    }
+    .notice-green { background: var(--success-bg); border-color: var(--green); color: var(--success-text); }
+    .notice-yellow { background: var(--warn-bg); border-color: #eab308; color: var(--warn-text); }
+    .notice-blue { background: var(--info-bg); border-color: var(--blue); color: var(--info-text); }
+
+    /* ACTIVITY */
+    .activity-item { display: flex; align-items: start; gap: 0.75rem; padding: 0.75rem 0; border-bottom: 1px solid var(--border); }
+    .activity-item:last-child { border-bottom: none; }
+    .activity-icon { font-size: 1.4rem; flex-shrink: 0; }
+    .activity-text { font-size: 0.9rem; }
+    .activity-time { font-size: 0.78rem; color: var(--muted); }
+
+    /* SHELTER CARD */
+    .shelter-card { border: 1px solid var(--border); border-radius: 10px; padding: 1rem; margin-bottom: 1rem; }
+    .shelter-card-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.75rem; }
+    .shelter-meta { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 0.75rem; font-size: 0.88rem; }
+    .meta-label { color: var(--muted); font-size: 0.78rem; }
+
+    /* EVENT CARD */
+    .event-card { border: 1px solid var(--border); border-radius: 10px; padding: 1rem; margin-bottom: 1rem; }
+    .event-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem; }
+    .event-meta { display: flex; flex-wrap: wrap; gap: 0.5rem; font-size: 0.85rem; color: var(--muted); margin-bottom: 0.5rem; }
+
+    /* FOOTER */
+    footer { background: #1e293b; color: white; text-align: center; padding: 1.5rem; margin-top: 2rem; }
+    footer p { font-size: 0.88rem; opacity: 0.8; margin: 0.2rem 0; }
+
+    /* HERO */
+    .hero { text-align: center; padding: 2rem 1rem; background: linear-gradient(135deg, #f0fdf4, #dbeafe); border-radius: 12px; margin-bottom: 1.25rem; }
+    .hero h2 { font-size: 1.6rem; color: var(--green); margin-bottom: 0.5rem; }
+    .hero p { color: var(--muted); max-width: 500px; margin: 0 auto 1.25rem; }
+
+    /* GRID 2 */
+    .grid2 { display: grid; grid-template-columns: 1fr; gap: 1rem; }
+    @media (min-width: 600px) { .grid2 { grid-template-columns: 1fr 1fr; } }
+
+    /* ABOUT FEATURE */
+    .feature { padding: 1rem; border-radius: 8px; border-left: 4px solid; }
+    .feature-green { background: #f0fdf4; border-color: var(--green); }
+    .feature-yellow { background: var(--warn-bg); border-color: #eab308; }
+    .feature-blue { background: var(--info-bg); border-color: var(--blue); }
+    .feature-pink { background: #fdf2f8; border-color: #ec4899; }
+    .feature h4 { margin-bottom: 0.35rem; }
+    .feature p { font-size: 0.88rem; }
+
+    /* ROW UTIL */
+    .row { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <span class="logo-icon">🍽️</span>
+    <h1>HungerCue</h1>
+  </div>
+  <p class="tagline">Fighting food insecurity by supporting homeless shelters</p>
+  <nav>
+    <button class="active" onclick="showPage('dashboard', this)">Dashboard</button>
+    <button onclick="showPage('donations', this)">Donations</button>
+    <button onclick="showPage('restaurants', this)">Restaurants</button>
+    <button onclick="showPage('shelters', this)">Shelters</button>
+    <button onclick="showPage('events', this)">Events</button>
+    <button onclick="showPage('about', this)">About</button>
+  </nav>
+</header>
+
+<main>
+
+  <!-- ===== DASHBOARD ===== -->
+  <div id="dashboard" class="page active">
+    <div class="hero">
+      <h2>Making a Difference Together</h2>
+      <p>Redirecting surplus food from local restaurants to homeless shelters, one meal at a time.</p>
+      <div style="display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap;">
+        <button class="btn btn-green" onclick="showPage('donations', document.querySelector('nav button:nth-child(2)'))">Log a Donation</button>
+        <button class="btn btn-outline" onclick="showPage('events', document.querySelector('nav button:nth-child(5)'))">View Events</button>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat orange">
+        <div class="stat-label">Food Redirected</div>
+        <div class="stat-value" id="totalValue">$4,320</div>
+        <div class="stat-desc">Surplus food value</div>
+      </div>
+      <div class="stat green">
+        <div class="stat-label">Meals Provided</div>
+        <div class="stat-value" id="totalMeals">15,680</div>
+        <div class="stat-desc">People fed</div>
+      </div>
+      <div class="stat blue">
+        <div class="stat-label">Restaurants</div>
+        <div class="stat-value" id="totalRest">12</div>
+        <div class="stat-desc">Active partners</div>
+      </div>
+      <div class="stat purple">
+        <div class="stat-label">Shelters Served</div>
+        <div class="stat-value" id="totalShelters">4</div>
+        <div class="stat-desc">Shelter partners</div>
+      </div>
+    </div>
+
+    <div class="notice notice-yellow">
+      <strong>🏆 Recognition:</strong> Honored with a letter of appreciation from the Ozanam Shelter Director for our dedication to fighting food insecurity.
+    </div>
+
+    <div class="card">
+      <h3>Recent Activity</h3>
+      <div class="activity-item">
+        <span class="activity-icon">🥗</span>
+        <div>
+          <div class="activity-text"><strong>Olive Garden</strong> donated 40 lbs of pasta &amp; salad to Ozanam Shelter</div>
+          <div class="activity-time">2 hours ago</div>
+        </div>
+      </div>
+      <div class="activity-item">
+        <span class="activity-icon">🍞</span>
+        <div>
+          <div class="activity-text"><strong>Panera Bread</strong> donated 25 lbs of baked goods to Hope Haven</div>
+          <div class="activity-time">Yesterday</div>
+        </div>
+      </div>
+      <div class="activity-item">
+        <span class="activity-icon">🎽</span>
+        <div>
+          <div class="activity-text"><strong>Annual 5K Walk</strong> raised $1,200 with 85 participants</div>
+          <div class="activity-time">3 days ago</div>
+        </div>
+      </div>
+      <div class="activity-item">
+        <span class="activity-icon">🍕</span>
+        <div>
+          <div class="activity-text"><strong>Pizza Hut</strong> donated 12 large pizzas to Safe Harbor</div>
+          <div class="activity-time">4 days ago</div>
+        </div>
+      </div>
+      <div class="activity-item">
+        <span class="activity-icon">🤝</span>
+        <div>
+          <div class="activity-text"><strong>New partner:</strong> Chipotle joined as restaurant partner</div>
+          <div class="activity-time">1 week ago</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="grid2">
+      <div class="card">
+        <h3>Top Donor Restaurants</h3>
+        <div style="margin-top:0.5rem">
+          <div style="display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid var(--border)"><span>🥇 Panera Bread</span><strong>142 lbs</strong></div>
+          <div style="display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid var(--border)"><span>🥈 Olive Garden</span><strong>118 lbs</strong></div>
+          <div style="display:flex;justify-content:space-between;padding:0.5rem 0;border-bottom:1px solid var(--border)"><span>🥉 Whole Foods</span><strong>97 lbs</strong></div>
+          <div style="display:flex;justify-content:space-between;padding:0.5rem 0"><span>4. Chipotle</span><strong>76 lbs</strong></div>
+        </div>
+      </div>
+      <div class="card">
+        <h3>Upcoming Events</h3>
+        <div style="margin-top:0.5rem">
+          <div style="padding:0.5rem 0;border-bottom:1px solid var(--border)">
+            <div style="font-weight:600">🎄 Holiday Food Drive</div>
+            <div style="font-size:0.85rem;color:var(--muted)">Dec 15 · City Park</div>
+          </div>
+          <div style="padding:0.5rem 0;border-bottom:1px solid var(--border)">
+            <div style="font-weight:600">🏃 Spring 5K Walk</div>
+            <div style="font-size:0.85rem;color:var(--muted)">Mar 22 · Downtown</div>
+          </div>
+          <div style="padding:0.5rem 0">
+            <div style="font-weight:600">🍽️ Restaurant Partner Dinner</div>
+            <div style="font-size:0.85rem;color:var(--muted)">Jan 10 · Community Hall</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== DONATIONS ===== -->
+  <div id="donations" class="page">
+    <div class="card">
+      <h2>Food Donations</h2>
+      <p>Track surplus food redirected from restaurants to shelters</p>
+    </div>
+
+    <div class="stats">
+      <div class="stat orange">
+        <div class="stat-label">Total Value</div>
+        <div class="stat-value" id="donTotalVal">$4,320</div>
+        <div class="stat-desc">Food redirected</div>
+      </div>
+      <div class="stat green">
+        <div class="stat-label">Total Weight</div>
+        <div class="stat-value" id="donTotalWt">1,840 lbs</div>
+        <div class="stat-desc">Food donated</div>
+      </div>
+      <div class="stat blue">
+        <div class="stat-label">Donations</div>
+        <div class="stat-value" id="donCount">143</div>
+        <div class="stat-desc">Total pickups</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="row">
+        <h3>Log New Donation</h3>
+      </div>
+      <div class="form-box">
+        <h4>+ Record Food Donation</h4>
+        <div class="form-row">
+          <label>Restaurant</label>
+          <select id="don-restaurant">
+            <option value="">Select restaurant…</option>
+            <option>Panera Bread</option>
+            <option>Olive Garden</option>
+            <option>Whole Foods</option>
+            <option>Chipotle</option>
+            <option>Pizza Hut</option>
+            <option>Chick-fil-A</option>
+            <option>McDonald's</option>
+            <option>Subway</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label>Destination Shelter</label>
+          <select id="don-shelter">
+            <option value="">Select shelter…</option>
+            <option>Ozanam Shelter</option>
+            <option>Hope Haven</option>
+            <option>Safe Harbor</option>
+            <option>Community Care</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label>Food Items</label>
+          <input type="text" id="don-items" placeholder="e.g. pasta, salad, bread" />
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem">
+          <div class="form-row">
+            <label>Weight (lbs)</label>
+            <input type="number" id="don-weight" placeholder="0" min="0" />
+          </div>
+          <div class="form-row">
+            <label>Est. Value ($)</label>
+            <input type="number" id="don-value" placeholder="0" min="0" />
+          </div>
+        </div>
+        <div class="form-row">
+          <label>Date</label>
+          <input type="date" id="don-date" />
+        </div>
+        <div class="form-row">
+          <label>Notes</label>
+          <textarea id="don-notes" placeholder="Any special notes…"></textarea>
+        </div>
+        <button class="btn btn-green" onclick="addDonation()">Save Donation</button>
+      </div>
+
+      <h3>Donation History</h3>
+      <div class="table-wrap" style="margin-top:0.75rem">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Restaurant</th>
+              <th>Shelter</th>
+              <th>Items</th>
+              <th>Weight</th>
+              <th>Value</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="donation-table">
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== RESTAURANTS ===== -->
+  <div id="restaurants" class="page">
+    <div class="card">
+      <h2>Restaurant Partners</h2>
+      <p>Local restaurants donating surplus food to fight hunger</p>
+    </div>
+
+    <div class="stats">
+      <div class="stat green">
+        <div class="stat-label">Partners</div>
+        <div class="stat-value">12</div>
+        <div class="stat-desc">Active restaurants</div>
+      </div>
+      <div class="stat orange">
+        <div class="stat-label">Total Donated</div>
+        <div class="stat-value">$4,320+</div>
+        <div class="stat-desc">Food value</div>
+      </div>
+      <div class="stat blue">
+        <div class="stat-label">Food Saved</div>
+        <div class="stat-value">1,840 lbs</div>
+        <div class="stat-desc">From waste</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="row">
+        <h3>Partner Directory</h3>
+        <button class="btn btn-green btn-sm" onclick="toggleForm('rest-form')">+ Add Partner</button>
+      </div>
+
+      <div class="form-box" id="rest-form" style="display:none">
+        <h4>Add Restaurant Partner</h4>
+        <div class="form-row"><label>Restaurant Name</label><input type="text" id="rest-name" placeholder="Name" /></div>
+        <div class="form-row"><label>Contact Person</label><input type="text" id="rest-contact" placeholder="Manager name" /></div>
+        <div class="form-row"><label>Phone</label><input type="tel" id="rest-phone" placeholder="(555) 123-4567" /></div>
+        <div class="form-row"><label>Email</label><input type="email" id="rest-email" placeholder="email@restaurant.com" /></div>
+        <div class="form-row"><label>Address</label><input type="text" id="rest-address" placeholder="Street address" /></div>
+        <div class="form-row"><label>Food Types Available</label><input type="text" id="rest-food" placeholder="e.g. baked goods, prepared meals" /></div>
+        <button class="btn btn-green" onclick="addRestaurant()">Add Partner</button>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Restaurant</th><th>Contact</th><th>Phone</th><th>Food Types</th><th>Donations</th><th>Status</th></tr>
+          </thead>
+          <tbody id="restaurant-table">
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Why Partner With Us?</h3>
+      <div class="grid2" style="margin-top:0.75rem">
+        <div class="notice notice-green"><strong>Tax Benefits</strong><br><small>Receive tax deductions for all food donations made to HungerCue.</small></div>
+        <div class="notice notice-blue"><strong>Reduce Food Waste</strong><br><small>Help the environment by redirecting surplus food instead of throwing it away.</small></div>
+        <div class="notice notice-yellow"><strong>Community Impact</strong><br><small>Be recognized as a community leader fighting food insecurity locally.</small></div>
+        <div class="notice notice-green"><strong>Simple Process</strong><br><small>We handle all pickup logistics — just set aside the food and we'll take care of the rest.</small></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SHELTERS ===== -->
+  <div id="shelters" class="page">
+    <div class="card">
+      <h2>Homeless Shelters</h2>
+      <p>Partner shelters receiving food donations</p>
+    </div>
+
+    <div class="stats">
+      <div class="stat blue">
+        <div class="stat-label">Shelters</div>
+        <div class="stat-value">4</div>
+        <div class="stat-desc">Active partners</div>
+      </div>
+      <div class="stat green">
+        <div class="stat-label">Total Capacity</div>
+        <div class="stat-value">360</div>
+        <div class="stat-desc">People served</div>
+      </div>
+      <div class="stat orange">
+        <div class="stat-label">Deliveries</div>
+        <div class="stat-value">143</div>
+        <div class="stat-desc">Total made</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="row">
+        <h3>Shelter Directory</h3>
+        <button class="btn btn-green btn-sm" onclick="toggleForm('shelter-form')">+ Add Shelter</button>
+      </div>
+
+      <div class="form-box" id="shelter-form" style="display:none">
+        <h4>Add Shelter Partner</h4>
+        <div class="form-row"><label>Shelter Name</label><input type="text" id="sh-name" /></div>
+        <div class="form-row"><label>Director</label><input type="text" id="sh-director" /></div>
+        <div class="form-row"><label>Phone</label><input type="tel" id="sh-phone" /></div>
+        <div class="form-row"><label>Email</label><input type="email" id="sh-email" /></div>
+        <div class="form-row"><label>Capacity</label><input type="number" id="sh-capacity" min="0" /></div>
+        <div class="form-row"><label>Notes</label><textarea id="sh-notes" placeholder="Special requirements…"></textarea></div>
+        <button class="btn btn-green" onclick="addShelter()">Add Shelter</button>
+      </div>
+
+      <div id="shelter-list"></div>
+    </div>
+
+    <div class="notice notice-yellow">
+      <strong>🏆 Letter of Appreciation</strong><br>
+      HungerCue has been honored with a letter of appreciation from the <strong>Ozanam Shelter Director</strong> for our dedication to fighting food insecurity and supporting homeless community members.
+    </div>
+  </div>
+
+  <!-- ===== EVENTS ===== -->
+  <div id="events" class="page">
+    <div class="card">
+      <h2>Events</h2>
+      <p>5K walks, food drives, and community fundraisers</p>
+    </div>
+
+    <div class="stats">
+      <div class="stat green">
+        <div class="stat-label">Events Held</div>
+        <div class="stat-value">8</div>
+        <div class="stat-desc">Total events</div>
+      </div>
+      <div class="stat orange">
+        <div class="stat-label">Raised</div>
+        <div class="stat-value">$6,400</div>
+        <div class="stat-desc">Funds raised</div>
+      </div>
+      <div class="stat blue">
+        <div class="stat-label">Participants</div>
+        <div class="stat-value">420+</div>
+        <div class="stat-desc">Community members</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="row">
+        <h3>Events</h3>
+        <button class="btn btn-green btn-sm" onclick="toggleForm('event-form')">+ Add Event</button>
+      </div>
+
+      <div class="form-box" id="event-form" style="display:none">
+        <h4>Schedule New Event</h4>
+        <div class="form-row"><label>Event Name</label><input type="text" id="ev-name" /></div>
+        <div class="form-row">
+          <label>Type</label>
+          <select id="ev-type">
+            <option>5K Walk/Run</option>
+            <option>Food Drive</option>
+            <option>Holiday Drive</option>
+            <option>Fundraiser Dinner</option>
+            <option>Volunteer Day</option>
+            <option>Community Awareness</option>
+          </select>
+        </div>
+        <div class="form-row"><label>Date</label><input type="date" id="ev-date" /></div>
+        <div class="form-row"><label>Location</label><input type="text" id="ev-location" /></div>
+        <div class="form-row"><label>Goal</label><input type="text" id="ev-goal" placeholder="e.g. Raise $500, collect 200 lbs of food" /></div>
+        <div class="form-row"><label>Description</label><textarea id="ev-desc"></textarea></div>
+        <button class="btn btn-green" onclick="addEvent()">Add Event</button>
+      </div>
+
+      <div id="event-list"></div>
+    </div>
+  </div>
+
+  <!-- ===== ABOUT ===== -->
+  <div id="about" class="page">
+    <div class="card">
+      <h2>About HungerCue</h2>
+      <p style="font-size:1.05rem;line-height:1.8">HungerCue is a not-for-profit organization dedicated to fighting food insecurity by connecting local restaurants with homeless shelters — ensuring surplus food feeds people, not landfills.</p>
+    </div>
+
+    <div class="grid2">
+      <div class="card"><h3>Our Mission</h3><p>Combat food waste and food insecurity by creating sustainable connections between restaurants with surplus food and homeless shelters.</p></div>
+      <div class="card"><h3>Our Vision</h3><p>A community where no one experiences hunger and surplus food is efficiently redirected to those who need it most.</p></div>
+    </div>
+
+    <div class="card">
+      <h3>What We Do</h3>
+      <div class="grid2" style="margin-top:0.75rem">
+        <div class="feature feature-green"><h4>🍽️ Food Redistribution</h4><p>Collect surplus food from restaurants and deliver it directly to homeless shelters.</p></div>
+        <div class="feature feature-yellow"><h4>🏃 Community Events</h4><p>Organize 5K walks, holiday drives, and fundraisers to raise awareness and funds.</p></div>
+        <div class="feature feature-blue"><h4>🤝 Partnership Building</h4><p>Build lasting partnerships between restaurants, shelters, and community organizations.</p></div>
+        <div class="feature feature-pink"><h4>📊 Impact Tracking</h4><p>Measure and report impact — tracking donations, meals provided, and money saved from waste.</p></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Achievements</h3>
+      <ul style="padding-left:1.25rem;line-height:2.2">
+        <li>Redirected <strong>$4,000+ in surplus food</strong> from local restaurants to shelters</li>
+        <li>Organized successful <strong>5K walks</strong> and <strong>holiday food drives</strong></li>
+        <li>Partnered with <strong>12 restaurants</strong> and <strong>4 homeless shelters</strong></li>
+        <li>Provided over <strong>15,000 meals</strong> to people in need</li>
+        <li>Received <strong>letter of appreciation</strong> from Ozanam Shelter Director</li>
+      </ul>
+    </div>
+
+    <div class="notice notice-yellow" style="font-size:1rem;padding:1.25rem">
+      <strong style="font-size:1.1rem">🏆 Letter of Appreciation</strong><br><br>
+      HungerCue has been honored with a letter of appreciation from the <strong>Ozanam Shelter Director</strong> recognizing our outstanding dedication to fighting food insecurity and supporting homeless community members.
+    </div>
+
+    <div class="card" style="background:var(--green);color:white;text-align:center">
+      <h3 style="color:white;margin-bottom:0.5rem">Join Us in Fighting Food Insecurity</h3>
+      <p style="opacity:0.9;margin-bottom:1rem">Together, we can ensure no one in our community goes hungry.</p>
+      <div style="display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap">
+        <button class="btn btn-orange">Become a Partner</button>
+        <button class="btn" style="background:white;color:var(--green)">Volunteer Now</button>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <p>🍽️ <strong>HungerCue</strong> — Not-for-Profit Fighting Food Insecurity</p>
+  <p>Supporting homeless shelters by redirecting surplus food from local restaurants</p>
+</footer>
+
+<script>
+  // ── PAGE NAVIGATION ──────────────────────────────────────────────
+  function showPage(id, btn) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    if (btn) btn.classList.add('active');
+  }
+
+  function toggleForm(id) {
+    const el = document.getElementById(id);
+    el.style.display = el.style.display === 'none' ? 'block' : 'none';
+  }
+
+  // ── DATA ─────────────────────────────────────────────────────────
+  let donations = [
+    { date: '2025-01-18', restaurant: 'Olive Garden', shelter: 'Ozanam Shelter', items: 'Pasta, salad, breadsticks', weight: 40, value: 95, status: 'Delivered' },
+    { date: '2025-01-17', restaurant: 'Panera Bread', shelter: 'Hope Haven', items: 'Bagels, muffins, sandwiches', weight: 25, value: 68, status: 'Delivered' },
+    { date: '2025-01-15', restaurant: 'Whole Foods', shelter: 'Safe Harbor', items: 'Produce, prepared meals', weight: 60, value: 140, status: 'Delivered' },
+    { date: '2025-01-14', restaurant: 'Pizza Hut', shelter: 'Ozanam Shelter', items: '12 large pizzas', weight: 30, value: 144, status: 'Delivered' },
+    { date: '2025-01-12', restaurant: 'Chipotle', shelter: 'Community Care', items: 'Burrito bowls, rice, beans', weight: 35, value: 112, status: 'Delivered' },
+    { date: '2025-01-10', restaurant: 'Chick-fil-A', shelter: 'Hope Haven', items: 'Sandwiches, nuggets, salads', weight: 28, value: 95, status: 'Delivered' },
+  ];
+
+  let restaurants = [
+    { name: 'Panera Bread', contact: 'Sarah Johnson', phone: '(555) 101-2020', food: 'Baked goods, sandwiches', donations: 28, status: 'Active' },
+    { name: 'Olive Garden', contact: 'Marco Rossi', phone: '(555) 202-3030', food: 'Pasta, salad, breadsticks', donations: 22, status: 'Active' },
+    { name: 'Whole Foods', contact: 'Emily Chen', phone: '(555) 303-4040', food: 'Produce, prepared meals', donations: 19, status: 'Active' },
+    { name: 'Chipotle', contact: 'Carlos Rivera', phone: '(555) 404-5050', food: 'Burrito bowls, rice', donations: 15, status: 'Active' },
+    { name: 'Pizza Hut', contact: 'Dave Miller', phone: '(555) 505-6060', food: 'Pizza, breadsticks', donations: 18, status: 'Active' },
+    { name: "Chick-fil-A", contact: 'Amy Thompson', phone: '(555) 606-7070', food: 'Sandwiches, nuggets', donations: 12, status: 'Active' },
+  ];
+
+  let shelters = [
+    { name: 'Ozanam Shelter', director: 'Robert Martinez', phone: '(555) 111-2222', email: 'director@ozanam.org', capacity: 120, deliveries: 45, notes: 'Primary partner. Honored HungerCue with letter of appreciation.' },
+    { name: 'Hope Haven', director: 'Linda Thompson', phone: '(555) 222-3333', email: 'info@hopehaven.org', capacity: 80, deliveries: 32, notes: 'Family shelter. Prefers breakfast items and fresh produce.' },
+    { name: 'Safe Harbor', director: 'Michael Chen', phone: '(555) 333-4444', email: 'contact@safeharbor.org', capacity: 60, deliveries: 28, notes: 'Emergency shelter. Limited storage, prefers non-perishables.' },
+    { name: 'Community Care', director: 'Angela Davis', phone: '(555) 444-5555', email: 'admin@communitycare.org', capacity: 100, deliveries: 38, notes: 'Veteran-focused shelter. Full kitchen available.' },
+  ];
+
+  let events = [
+    { name: 'Annual 5K Walk', type: '5K Walk/Run', date: '2025-11-02', location: 'City Park', goal: 'Raise $1,500', result: '$1,200 raised · 85 participants', status: 'Completed' },
+    { name: 'Holiday Food Drive', type: 'Holiday Drive', date: '2025-12-15', location: 'City Park', goal: 'Collect 500 lbs of food', result: '', status: 'Upcoming' },
+    { name: 'Spring 5K Walk', type: '5K Walk/Run', date: '2026-03-22', location: 'Downtown', goal: 'Raise $2,000', result: '', status: 'Upcoming' },
+    { name: 'Thanksgiving Drive', type: 'Holiday Drive', date: '2024-11-25', location: 'Community Hall', goal: 'Collect 300 lbs of food', result: '340 lbs collected · 60 volunteers', status: 'Completed' },
+    { name: 'Restaurant Partner Dinner', type: 'Fundraiser Dinner', date: '2026-01-10', location: 'Community Hall', goal: 'Raise $3,000', result: '', status: 'Upcoming' },
+  ];
+
+  // ── RENDER ────────────────────────────────────────────────────────
+  function renderDonations() {
+    const tbody = document.getElementById('donation-table');
+    tbody.innerHTML = donations.map(d => `
+      <tr>
+        <td>${d.date}</td>
+        <td>${d.restaurant}</td>
+        <td>${d.shelter}</td>
+        <td>${d.items}</td>
+        <td>${d.weight} lbs</td>
+        <td>$${d.value}</td>
+        <td><span class="badge badge-green">${d.status}</span></td>
+      </tr>
+    `).join('');
+  }
+
+  function renderRestaurants() {
+    const tbody = document.getElementById('restaurant-table');
+    tbody.innerHTML = restaurants.map(r => `
+      <tr>
+        <td><strong>${r.name}</strong></td>
+        <td>${r.contact}</td>
+        <td>${r.phone}</td>
+        <td>${r.food}</td>
+        <td>${r.donations}</td>
+        <td><span class="badge badge-green">${r.status}</span></td>
+      </tr>
+    `).join('');
+  }
+
+  function renderShelters() {
+    const list = document.getElementById('shelter-list');
+    list.innerHTML = shelters.map(s => `
+      <div class="shelter-card">
+        <div class="shelter-card-header">
+          <div>
+            <h3 style="margin-bottom:0.25rem">${s.name}</h3>
+            <span class="badge badge-green">Active</span>
+          </div>
+          <div style="text-align:right">
+            <div class="meta-label">Capacity</div>
+            <div style="font-size:1.5rem;font-weight:800;color:var(--green)">${s.capacity}</div>
+          </div>
+        </div>
+        <div class="shelter-meta">
+          <div><div class="meta-label">Director</div><strong>${s.director}</strong></div>
+          <div><div class="meta-label">Phone</div>${s.phone}</div>
+          <div><div class="meta-label">Email</div>${s.email}</div>
+          <div><div class="meta-label">Deliveries</div><strong>${s.deliveries}</strong></div>
+        </div>
+        ${s.notes ? `<div class="notice notice-blue" style="margin:0"><small>${s.notes}</small></div>` : ''}
+      </div>
+    `).join('');
+  }
+
+  function renderEvents() {
+    const list = document.getElementById('event-list');
+    const typeEmoji = { '5K Walk/Run': '🏃', 'Food Drive': '🍱', 'Holiday Drive': '🎄', 'Fundraiser Dinner': '🍽️', 'Volunteer Day': '🤝', 'Community Awareness': '📢' };
+    list.innerHTML = events.map(e => `
+      <div class="event-card">
+        <div class="event-header">
+          <div>
+            <h3 style="margin-bottom:0.25rem">${typeEmoji[e.type] || '📅'} ${e.name}</h3>
+            <span class="badge ${e.status === 'Completed' ? 'badge-blue' : 'badge-green'}">${e.status}</span>
+          </div>
+          <span class="badge badge-orange">${e.type}</span>
+        </div>
+        <div class="event-meta">
+          <span>📅 ${e.date}</span>
+          <span>📍 ${e.location}</span>
+          <span>🎯 ${e.goal}</span>
+        </div>
+        ${e.result ? `<div class="notice notice-green" style="margin:0;padding:0.5rem 0.75rem"><small>✅ ${e.result}</small></div>` : ''}
+      </div>
+    `).join('');
+  }
+
+  // ── ADD ACTIONS ───────────────────────────────────────────────────
+  function addDonation() {
+    const rest = document.getElementById('don-restaurant').value;
+    const shelter = document.getElementById('don-shelter').value;
+    const items = document.getElementById('don-items').value;
+    const weight = Number(document.getElementById('don-weight').value);
+    const value = Number(document.getElementById('don-value').value);
+    const date = document.getElementById('don-date').value;
+    if (!rest || !shelter || !items || !date) { alert('Please fill in all required fields.'); return; }
+    donations.unshift({ date, restaurant: rest, shelter, items, weight, value, status: 'Delivered' });
+    renderDonations();
+    document.getElementById('don-restaurant').value = '';
+    document.getElementById('don-shelter').value = '';
+    document.getElementById('don-items').value = '';
+    document.getElementById('don-weight').value = '';
+    document.getElementById('don-value').value = '';
+    document.getElementById('don-date').value = '';
+    document.getElementById('don-notes').value = '';
+  }
+
+  function addRestaurant() {
+    const name = document.getElementById('rest-name').value;
+    const contact = document.getElementById('rest-contact').value;
+    const phone = document.getElementById('rest-phone').value;
+    const food = document.getElementById('rest-food').value;
+    if (!name || !contact) { alert('Please fill in name and contact.'); return; }
+    restaurants.push({ name, contact, phone, food, donations: 0, status: 'Active' });
+    renderRestaurants();
+    document.getElementById('rest-form').style.display = 'none';
+    ['rest-name','rest-contact','rest-phone','rest-email','rest-address','rest-food'].forEach(id => document.getElementById(id).value = '');
+  }
+
+  function addShelter() {
+    const name = document.getElementById('sh-name').value;
+    const director = document.getElementById('sh-director').value;
+    const phone = document.getElementById('sh-phone').value;
+    const email = document.getElementById('sh-email').value;
+    const capacity = Number(document.getElementById('sh-capacity').value);
+    const notes = document.getElementById('sh-notes').value;
+    if (!name || !director) { alert('Please fill in name and director.'); return; }
+    shelters.push({ name, director, phone, email, capacity, deliveries: 0, notes });
+    renderShelters();
+    document.getElementById('shelter-form').style.display = 'none';
+    ['sh-name','sh-director','sh-phone','sh-email','sh-capacity','sh-notes'].forEach(id => document.getElementById(id).value = '');
+  }
+
+  function addEvent() {
+    const name = document.getElementById('ev-name').value;
+    const type = document.getElementById('ev-type').value;
+    const date = document.getElementById('ev-date').value;
+    const location = document.getElementById('ev-location').value;
+    const goal = document.getElementById('ev-goal').value;
+    const desc = document.getElementById('ev-desc').value;
+    if (!name || !date || !location) { alert('Please fill in name, date, and location.'); return; }
+    events.unshift({ name, type, date, location, goal, result: '', status: 'Upcoming' });
+    renderEvents();
+    document.getElementById('event-form').style.display = 'none';
+    ['ev-name','ev-date','ev-location','ev-goal','ev-desc'].forEach(id => document.getElementById(id).value = '');
+  }
+
+  // ── INIT ──────────────────────────────────────────────────────────
+  document.getElementById('don-date').valueAsDate = new Date();
+  renderDonations();
+  renderRestaurants();
+  renderShelters();
+  renderEvents();
+</script>
+
+</body>
+</html>
